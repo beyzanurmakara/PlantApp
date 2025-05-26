@@ -77,3 +77,4 @@ yarn-error.log
 
 ios/build
 android/app/build
+package-lock.json
