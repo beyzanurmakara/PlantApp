@@ -1,0 +1,1 @@
+cp src/external/dots/index.js node_modules/react-native-dots-pagination/index.js
