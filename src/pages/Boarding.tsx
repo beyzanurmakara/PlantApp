@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated, Image, FlatList } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated, Image, FlatList, Touchable } from "react-native";
 
 import LinearGradient from "react-native-linear-gradient";
-import Carousel from "react-native-reanimated-carousel";
-
-import shareStyle from "../styles";
+import Dots from "react-native-dots-pagination";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MMKV } from "react-native-mmkv";
+const storage = new MMKV();
+
+import shareStyle from "../styles";
 
 const { width, height } = Dimensions.get("screen");
-
+const show = "SHOW_SALE"
 const list = [
     {
         id: 1,
@@ -29,8 +31,10 @@ const Boarding = (props: any) => {
     const { navigation } = props;
     const insets = useSafeAreaInsets();
     const [activeIndex, setActiveIndex] = React.useState(0)
-    const [viewPosition, setViewPosition] = React.useState(new Animated.Value(0))
     const [selected, setSelected] = useState(1)
+    const [selectedPeriod, setSelectedPeriod] = useState(1)
+    const [viewPosition, setViewPosition] = React.useState(new Animated.Value(0))
+    const [viewPositionSale, setViewPositionSale] = React.useState(new Animated.Value(0))
     const [sales, setSales] = React.useState(new Animated.Value(0))
 
     return (
@@ -39,7 +43,7 @@ const Boarding = (props: any) => {
             flexDirection: 'row',
             alignItems: 'center'
         }} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>
-            {/* <Animated.View style={{
+            <Animated.View style={{
                 position: "absolute",
                 zIndex: 1,
                 height: height,
@@ -55,12 +59,12 @@ const Boarding = (props: any) => {
                     inputRange: [0, 1], outputRange: [1, 0]
                 })
             }}>
-                <View style={[shareStyle.container, { paddingTop: insets.top }]}>
+                <View style={[shareStyle.container, { paddingTop: insets.top, height: "10%" }]}>
                     <View style={shareStyle.headerContainer}>
                         {list[0].title()}
                     </View>
-                    <Image source={list[0].image} style={shareStyle.image} resizeMode='stretch' />
-                    <View style={shareStyle.footerContainer}>
+                    <Image source={list[0].image} style={[shareStyle.image, { height: "85%", marginTop: -height * .15, marginBottom: -height * 0.2 }]} />
+                    <View style={[shareStyle.footerContainer, { height: '16%' }]}>
                         <TouchableOpacity style={shareStyle.button} onPress={() => {
                             setActiveIndex(1)
                             Animated.timing(viewPosition, {
@@ -98,18 +102,22 @@ const Boarding = (props: any) => {
                     <Image source={list[1].image} style={[shareStyle.image]} resizeMode='cover' />
                     <View style={shareStyle.footerContainer}>
                         <TouchableOpacity style={shareStyle.button} onPress={() => {
-                            if (activeIndex == 0) {
-                                setActiveIndex(1)
-                            } else {
+                            if (storage.getBoolean(show)) {
                                 navigation.reset({
                                     index: 0,
                                     routes: [
                                         {
-                                            name: '',
+                                            name: 'Main',
                                             params: {},
                                         },
                                     ],
                                 })
+                            } else {
+                                Animated.timing(viewPositionSale, {
+                                    toValue: 1,
+                                    duration: 500,
+                                    useNativeDriver: true
+                                }).start()
                             }
                         }}>
                             <Text style={shareStyle.buttonText}>Get Started</Text>
@@ -126,19 +134,30 @@ const Boarding = (props: any) => {
                 bottom: 45,
                 // backgroundColor: 'red',
                 justifyContent: 'center',
-                alignItems: 'center'
+                alignItems: 'center',
+                zIndex: 100
             }}>
                 <Dots length={2} active={activeIndex} activeColor="#13231B" passiveColor="#13231B40" width={width} activeDotWidth={10} activeDotHeight={10} passiveDotHeight={6} passiveDotWidth={6} />
-            </View> */}
-            <View style={{
+            </View>
+            <Animated.View style={{
                 position: 'absolute',
                 width: width,
                 height: height,
-                backgroundColor: '#101e17'
+                backgroundColor: '#101e17',
+                transform: [
+                    {
+                        translateY: viewPositionSale.interpolate({
+                            inputRange: [0, 1], outputRange: [height, 0]
+                        })
+                    }
+                ],
+                opacity: viewPositionSale.interpolate({
+                    inputRange: [0, 1], outputRange: [0, 1]
+                })
 
             }}>
                 <Image source={require("../assets/images/boarding_3.png")} style={{ width: width, height: height * .65, position: 'absolute', zIndex: 1 }} />
-                <View style={{ width: '100%', justifyContent: 'flex-end', height: height * 0.8, zIndex: 10 }}>
+                <View style={{ width: '100%', justifyContent: 'flex-end', height: height - insets.bottom, zIndex: 10 }}>
                     <Text style={[shareStyle.header, { color: "#fff", paddingHorizontal: 24 }]}><Text style={{ fontFamily: "Rubik-Medium" }}>PlantApp</Text> Premium</Text>
                     <Text style={{
                         fontFamily: "Rubik-Light",
@@ -148,7 +167,7 @@ const Boarding = (props: any) => {
                         paddingHorizontal: 24,
                         marginBottom: 20
                     }}>Access All Features</Text>
-                    <View style={{ height: 200 }}>
+                    <View style={{ height: 130 }}>
                         <FlatList
                             data={[
                                 {
@@ -217,8 +236,173 @@ const Boarding = (props: any) => {
                             keyExtractor={(item, index) => `KEY_${index}`}
                         />
                     </View>
+                    <View style={{ height: 180 }}>
+                        <FlatList
+                            data={[
+                                {
+                                    id: 1,
+                                    name: "1 Month",
+                                    description: "$2.99/month, auto renewable"
+                                },
+                                {
+                                    id: 2,
+                                    name: "1 Year",
+                                    description: "First 3 days free, then $529,99/year"
+                                }
+                            ]}
+                            keyExtractor={(item, index) => `KEY_VRT_${index}`}
+                            renderItem={({ item, index }) => {
+                                if (selectedPeriod == item.id)
+                                    return (
+                                        <TouchableOpacity onPress={() => { setSelectedPeriod(item.id) }} style={{
+                                            width: '100%',
+                                            borderColor: "#28AF6E",
+                                            borderWidth: 1.5,
+                                            borderRadius: 14,
+                                            marginBottom: 16,
+                                        }}>
+                                            <LinearGradient colors={["#28AF6E00", "#28AF6E3D"]}
+                                                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{
+                                                    width: '100%',
+                                                    flexDirection: 'row',
+                                                    borderRadius: 14,
+                                                    alignItems: 'center'
+                                                }}>
+                                                <View style={{
+                                                    paddingVertical: 14,
+                                                    paddingHorizontal: 16,
+                                                }}>
+                                                    <View style={{ height: 24, width: 24, backgroundColor: "#28AF6E", borderRadius: 1000, justifyContent: 'center', alignItems: 'center' }}>
+                                                        <View style={{ width: 10, height: 10, backgroundColor: '#fff', borderRadius: 100 }} />
+                                                    </View>
+                                                </View>
+                                                {selectedPeriod == 2 &&
+                                                    <View style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        borderBottomLeftRadius: 20,
+                                                        backgroundColor: "#28AF6E",
+                                                        paddingVertical: 4,
+                                                        paddingHorizontal: 12,
+                                                        right: 0
+                                                    }}>
+                                                        <Text style={{
+                                                            fontFamily: 'Rubik-Medium',
+                                                            fontSize: 12,
+                                                            color: "#fff",
+                                                            fontWeight: '500'
+                                                        }}>Save %50</Text>
+                                                    </View>
+                                                }
+                                                <View>
+                                                    <Text style={{
+                                                        fontFamily: "Rubik-Medium",
+                                                        color: "#fff",
+                                                        fontSize: 16,
+                                                        marginBottom: 2
+                                                    }}>{item.name}</Text>
+                                                    <Text style={{
+                                                        fontFamily: "Rubik-Regular",
+                                                        color: "#FFFFFFB2",
+                                                        fontSize: 12,
+                                                    }}>{item.description}</Text>
+                                                </View>
+                                            </LinearGradient>
+                                        </TouchableOpacity>
+                                    )
+                                else
+                                    return (
+                                        <TouchableOpacity onPress={() => { setSelectedPeriod(item.id) }} style={{
+                                            width: '100%',
+                                            borderColor: "#FFFFFF4D",
+                                            borderWidth: 0.5,
+                                            borderRadius: 14,
+                                            paddingVertical: 14,
+                                            paddingHorizontal: 16,
+                                            marginBottom: 16,
+                                            flexDirection: 'row',
+                                            alignItems: 'center'
+                                        }}>
+                                            <View style={{ height: 24, width: 24, backgroundColor: '#2f3a35', borderRadius: 1000, justifyContent: 'center', alignItems: 'center' }} />
+                                            <View style={{
+                                                paddingLeft: 14
+                                            }}>
+                                                <Text style={{
+                                                    fontFamily: "Rubik-Medium",
+                                                    color: "#fff",
+                                                    fontSize: 16,
+                                                    marginBottom: 2
+                                                }}>{item.name}</Text>
+                                                <Text style={{
+                                                    fontFamily: "Rubik-Regular",
+                                                    color: "#FFFFFFB2",
+                                                    fontSize: 12,
+                                                }}>{item.description}</Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    )
+                            }}
+                            style={{ paddingHorizontal: 24, marginTop: 24 }}
+                        />
+
+                    </View>
+                    <View style={{ paddingHorizontal: 24 }}>
+                        <TouchableOpacity style={shareStyle.button} onPress={() => {
+                            navigation.reset({
+                                index: 0,
+                                routes: [
+                                    {
+                                        name: 'Main',
+                                        params: {},
+                                    },
+                                ],
+                            })
+                        }}>
+                            <Text style={shareStyle.buttonText}>Try free for 3 Days</Text>
+                        </TouchableOpacity>
+                        <Text style={{
+                            fontFamily: "Rubik-Regular",
+                            fontSize: 10,
+                            color: "#FFFFFF85",
+                            marginTop: 8
+                        }}>After the 3-day free trial period you’ll be charged ₺274.99 per year unless you cancel before the trial expires. Yearly Subscription is Auto-Renewable</Text>
+                        <TouchableOpacity>
+                            <Text style={{
+                                fontFamily: "Rubik-Regular",
+                                fontSize: 12,
+                                color: "#FFFFFF80",
+                                marginTop: 10,
+                                textAlign: 'center'
+                            }}>Terms • Privacy • Restore</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
+                <TouchableOpacity hitSlop={{ bottom: 5, right: 5, top: 5, left: 5 }} style={{
+                    position: 'absolute',
+                    top: insets.top + 10,
+                    right: 20,
+                    backgroundColor: "#00000066",
+                    width: 24,
+                    height: 24,
+                    borderRadius: 1000,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 12
+                }} onPress={() => {
+                    storage.set(show, true)
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                            {
+                                name: 'Main',
+                                params: {},
+                            },
+                        ],
+                    })
+                }}>
+                    <Icon name="close" color="#fff" size={18} />
+                </TouchableOpacity>
+            </Animated.View>
         </LinearGradient>
     )
 }
