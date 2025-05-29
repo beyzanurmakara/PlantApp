@@ -317,8 +317,8 @@ const Boarding = (props: any) => {
                                             borderColor: "#FFFFFF4D",
                                             borderWidth: 0.5,
                                             borderRadius: 14,
-                                            paddingVertical: 14,
-                                            paddingHorizontal: 16,
+                                            paddingVertical: 7,
+                                            paddingHorizontal: 8,
                                             marginBottom: 16,
                                             flexDirection: 'row',
                                             alignItems: 'center'

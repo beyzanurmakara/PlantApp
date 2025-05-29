@@ -4,11 +4,14 @@
  *
  * @format
  */
+import React from 'react';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React from 'react';
+import LinearGradient from 'react-native-linear-gradient';
+import { Provider } from 'react-redux';
 
 //#region - PAGES
 import Started from './src/pages/Started';
@@ -26,9 +29,9 @@ import DiagnoseIcon from "./src/assets/images/diagnose.svg";
 import ScanIcon from "./src/assets/images/scan.svg";
 import GardenIcon from "./src/assets/images/garden.svg";
 import ProfileIcon from "./src/assets/images/profile.svg";
-import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 //#endregion
+
+import { store } from './src/redux/store';
 
 const { width } = Dimensions.get("screen");
 
@@ -38,7 +41,7 @@ const Main = () => {
     <Tab.Navigator initialRouteName='Home' screenOptions={{ headerShown: false }}
       tabBar={({ state, descriptors, navigation, insets }) => {
         return (
-          <View style={{ width: width, height: 107, justifyContent: 'flex-end' }}>
+          <View style={{ width: width, height: 84, justifyContent: 'flex-end' }}>
             <View style={{
               width: '100%', height: 84, backgroundColor: "#fff",
               shadowColor: "#000",
@@ -51,7 +54,7 @@ const Main = () => {
               elevation: 3,
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent:'center'
+              justifyContent: 'center'
             }}>
               {
                 state.routes.map((route, index) => {
@@ -85,7 +88,12 @@ const Main = () => {
                   };
                   if (route.name == "QR")
                     return (
-                      <TouchableOpacity key={`nav_tab_${route.key}`} style={{ width: 64, height: 64, top: -32, }}>
+                      <TouchableOpacity key={`nav_tab_${route.key}`}
+                        accessibilityRole="button"
+                        accessibilityState={isFocused ? { selected: true } : {}}
+                        onPress={onPress}
+                        onLongPress={onLongPress}
+                        style={{ width: 64, height: 64, top: -32, }}>
                         <LinearGradient colors={["#5CC191", "#58C28F"]} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={{ width: '100%', height: '100%', borderRadius: 1000, justifyContent: 'center', alignItems: 'center' }}>
                           <View style={{
                             backgroundColor: "#28AF6E", borderRadius: 100,
@@ -93,7 +101,7 @@ const Main = () => {
                             justifyContent: 'center', alignItems: 'center'
                           }}>
                             {
-                              options.tabBarIcon({ color:  "#fff", focused: isFocused })
+                              options.tabBarIcon({ color: "#fff", focused: isFocused })
                             }
                           </View>
                         </LinearGradient>
@@ -170,13 +178,15 @@ const Main = () => {
 function App(): React.JSX.Element {
   const Stack = createStackNavigator();
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Started" component={Started} />
-        <Stack.Screen name="Boarding" component={Boarding} />
-        <Stack.Screen name="Main" component={Main} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Started" component={Started} />
+          <Stack.Screen name="Boarding" component={Boarding} />
+          <Stack.Screen name="Main" component={Main} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 }
 
