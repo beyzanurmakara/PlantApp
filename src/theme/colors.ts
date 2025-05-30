@@ -1,0 +1,46 @@
+const colors = {
+  light: {
+    primary: '#28AF6E',
+    secondary: '#13231B',
+    white: "#FFFFFF",
+    light: "#DEF0FE",
+    footerColor: "#597165B2",
+    black: '#000000',
+    dark: "#26322C",
+    radio: "#2F3A35",
+    border: "#3C3C4340",
+    notificationCard: "#24201A",
+    icon: "#979798",
+    red: "#E82C13",
+    gradientStart: "#F0D399",
+    gradientMiddle: "#D0B070",
+    gradientEnd: "#D9A846",
+    tabGradientStart: "#5CC191",
+    tabGradientEnd: "#58C28F",
+    categoryCardBorder:"#29BB892E",
+    categoryCardColor:"#F4F6F6"
+  },
+  dark: {
+    primary: '#28AF6E',
+    secondary: '#13231B',
+    white: "#FFFFFF",
+    light: "#DEF0FE",
+    footerColor: "#597165B2",
+    black: '#000000',
+    dark: "#26322C",
+    radio: "#2F3A35",
+    border: "#3C3C4340",
+    notificationCard: "#24201A",
+    icon: "#979798",
+    red: "#E82C13",
+    gradientStart: "#F0D399",
+    gradientMiddle: "#D0B070",
+    gradientEnd: "#D9A846",
+    tabGradientStart: "#5CC191",
+    tabGradientEnd: "#58C28F",
+    categoryCardBorder:"#29BB892E",
+    categoryCardColor:"#F4F6F6"
+  },
+};
+
+export default colors;
